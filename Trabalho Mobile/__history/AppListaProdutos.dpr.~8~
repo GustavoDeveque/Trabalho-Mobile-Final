@@ -1,0 +1,25 @@
+program AppListaProdutos;
+
+uses
+  System.StartUpCopy,
+  FMX.Forms,
+  USplash in 'USplash.pas' {FrmSplash},
+  UInicial in 'UInicial.pas' {FrmInicial},
+  UDM in 'UDM.pas' {DM: TDataModule},
+  UVeiculo in 'UVeiculo.pas' {FrmVeiculo},
+  UViagem in 'UViagem.pas' {FrmViagem},
+  UGPS in 'UGPS.pas' {FrmGPS},
+  UDistancia in 'UDistancia.pas' {FrmDistancia};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.CreateForm(TFrmSplash, FrmSplash);
+  Application.CreateForm(TDM, DM);
+  Application.CreateForm(TFrmInicial, FrmInicial);
+  Application.CreateForm(TFrmVeiculo, FrmVeiculo);
+  Application.CreateForm(TFrmViagem, FrmViagem);
+  Application.CreateForm(TFrmGPS, FrmGPS);
+  Application.Run;
+end.

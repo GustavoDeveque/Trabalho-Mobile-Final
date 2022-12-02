@@ -1,0 +1,13 @@
+ create table pessoa( 	
+ id integer not null primary key autoincrement, 
+ nome varchar(40),    
+ cpf varchar(11),     
+ celular varchar(13), 
+ cep varchar(10),     
+ endereco varchar(60),
+ cidade varchar(60),  
+ uf char(2),          
+ bairro varchar(60),  
+ email varchar(60),   
+ senha varchar(40),   
+ img_usuario blob)

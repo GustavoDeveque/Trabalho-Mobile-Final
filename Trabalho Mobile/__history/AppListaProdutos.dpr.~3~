@@ -1,0 +1,20 @@
+program AppListaProdutos;
+
+uses
+  System.StartUpCopy,
+  FMX.Forms,
+  USplash in 'USplash.pas' {FrmSplash},
+  UInicial in 'UInicial.pas' {FrmInicial},
+  UDM in 'UDM.pas' {DM: TDataModule},
+  UVeiculo in 'UVeiculo.pas' {FrmVeiculo},
+  UViagem in 'UViagem.pas'  {FrmViagem};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.CreateForm(TFrmSplash, FrmSplash);
+  Application.CreateForm(TDM, DM);
+  Application.CreateForm(TFrmViagem, FrmViagem);
+  Application.Run;
+end.

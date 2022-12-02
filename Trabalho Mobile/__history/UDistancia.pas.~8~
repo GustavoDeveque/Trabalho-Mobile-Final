@@ -1,0 +1,59 @@
+unit UDistancia;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls,
+  FMX.Controls.Presentation, REST.Types, REST.Client, Data.Bind.Components,
+  Data.Bind.ObjectScope, FMX.Edit, FMX.Layouts;
+
+type
+  TFrmDistancia = class(TForm)
+    ToolBar1: TToolBar;
+    Label1: TLabel;
+    Layout1: TLayout;
+    Label2: TLabel;
+    edt_origem: TEdit;
+    Label3: TLabel;
+    edt_destino: TEdit;
+    lbl_distancia: TLabel;
+    lbl_tempo: TLabel;
+    RESTClient1: TRESTClient;
+    RESTRequest1: TRESTRequest;
+    RESTResponse1: TRESTResponse;
+    btn_calcular: TButton;
+    procedure btn_calcularClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrmDistancia: TFrmDistancia;
+
+implementation
+
+{$R *.fmx}
+
+procedure TFrmDistancia.btn_calcularClick(Sender: TObject);
+var
+  retorno: TJSONObject;
+  prows: TJSONPair;
+  arrayr: TJSONArray;
+  orows: TJSONObject;
+  arraye: TJSONArray;
+  oelementos: TJSONObject;
+  oduracao, odistancia: TJSONObject;
+
+  distancia_str, duracao_str: string;
+  distancia_int, duracao_int: integer;
+
+begin
+  RESTRequest1.Resource :=
+    'json?origins=(origem)&destinations=(destino)&mode=driving&language=pt-BR&key=';
+  RESTRequest1.Params.AddUrlSegment('origem')
+end;
+
+end.

@@ -1,0 +1,487 @@
+unit ULista;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants, IOUtils,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls,
+  FMX.Edit, FMX.Objects, FMX.Ani, FMX.Controls.Presentation, FMX.Layouts,
+  FMX.TabControl, FMX.MultiView, System.Actions, FMX.ActnList, FMX.ListBox, IdHashSHA;
+
+type
+  TFrmLista = class(TForm)
+    rect_toolbar: TRectangle;
+    lbl_titulo: TLabel;
+    img_busca: TImage;
+    img_cancelar: TImage;
+    rect_busca: TRectangle;
+    img_cancel_busca: TImage;
+    AnimationBusca: TFloatAnimation;
+    RoundRect1: TRoundRect;
+    edt_busca: TEdit;
+    img_salvar: TImage;
+    img_favorito: TImage;
+    btnMenu: TSpeedButton;
+    TabControl1: TTabControl;
+    TabItem1: TTabItem;
+    Image1: TImage;
+    TabItem2: TTabItem;
+    VertScrollBoxMinhaLista: TVertScrollBox;
+    TabItem3: TTabItem;
+    TabItem4: TTabItem;
+    VertScrollBoxLista: TVertScrollBox;
+    TabItem5: TTabItem;
+    VertScrollBox2: TVertScrollBox;
+    MultiView1: TMultiView;
+    LayoutMenuTopo: TLayout;
+    CircleFoto: TCircle;
+    LabelNomeUser: TLabel;
+    VertScrollBox1: TVertScrollBox;
+    RectMeusDados: TRoundRect;
+    Label1: TLabel;
+    RectFavoritos: TRoundRect;
+    Label2: TLabel;
+    RoundProfissionais: TRoundRect;
+    LabelProfissionais: TLabel;
+    ActionList1: TActionList;
+    ChangeTabAction1: TChangeTabAction;
+    ChangeTabAction2: TChangeTabAction;
+    ChangeTabAction3: TChangeTabAction;
+    ChangeTabAction4: TChangeTabAction;
+    ChangeTabAction5: TChangeTabAction;
+    VertScrollBoxFavoritos: TVertScrollBox;
+    ImageFavoritos: TImage;
+    Label18: TLabel;
+    Layout1: TLayout;
+    Layout2: TLayout;
+    lbl_nome: TLabel;
+    edt_nome: TEdit;
+    lbl_cpf: TLabel;
+    edt_cpf: TEdit;
+    Layout3: TLayout;
+    Layout4: TLayout;
+    lbl_celular: TLabel;
+    edt_celular: TEdit;
+    lbl_datanascimento: TLabel;
+    edt_datanascimento: TEdit;
+    cmb_genero: TComboBox;
+    lbl_genero: TLabel;
+    lbl_idade: TLabel;
+    edt_idade: TEdit;
+    Layout5: TLayout;
+    lbl_email: TLabel;
+    edt_email: TEdit;
+    CircleFotoPerfil: TCircle;
+    Image2: TImage;
+    Layout6: TLayout;
+    lbl_cep: TLabel;
+    edt_cep: TEdit;
+    Layout7: TLayout;
+    lbl_cidadeUF: TLabel;
+    edt_cidade: TEdit;
+    edt_uf: TEdit;
+    Layout8: TLayout;
+    lbl_endereco: TLabel;
+    edt_endereco: TEdit;
+    lbl_complemento: TLabel;
+    edt_complemento: TEdit;
+    Layout9: TLayout;
+    Layout10: TLayout;
+    lbl_bairro: TLabel;
+    edt_bairro: TEdit;
+    Layout11: TLayout;
+    RectSalvar: TRectangle;
+    Salvar: TLabel;
+    procedure FormCreate(Sender: TObject);
+    procedure img_aba2Click(Sender: TObject);
+    procedure RectSalvarClick(Sender: TObject);
+  private
+    { Private declarations }
+    procedure CarregarListaProdutos(id: integer; nome, descricao: string;
+      valor: double);
+    procedure GetProdutosBase;
+    procedure AddFavoritos(Sender: TObject);
+    procedure GetListaFavoritos;
+    procedure AddItem(Sender: TObject);
+    procedure RemoverItem(Sender: TObject);
+    function favorito(id: integer): boolean;
+
+  public
+  FValorTotal : double;
+    { Public declarations }
+  end;
+
+var
+  FrmLista: TFrmLista;
+
+implementation
+
+{$R *.fmx}
+
+uses UDM;
+
+{ TFrmLista }
+
+procedure TFrmLista.AddFavoritos(Sender: TObject);
+var
+  AId: string;
+begin
+  AId := (TRectangle(Sender).TagString);
+  dm.FDQProduto.Locate('id', AId, []);
+  dm.FDQProduto.Edit;
+  dm.FDQProdutofavorito.AsString := 'S';
+  dm.FDQProduto.Post;
+  ShowMessage('Adicionado ao seus favoritos');
+end;
+
+procedure TFrmLista.AddItem(Sender: TObject);
+begin
+
+dm.FDQProduto.Locate('id', TButton(Sender).TagString,[]);
+FValorTotal := dm.FDQPedido.FieldByName('vlrPedido').AsFloat + dm.FDQProdutovalor.AsFloat;
+dm.FDQPedido.Append;
+dm.FDQPedido.FieldByName('idPessoa').AsInteger :=dm.FDQPessoa.FieldByName('id').AsInteger;
+dm.FDQPedido.FieldByName('dataHora').AsDatetime := now;
+dm.FDQPedido.FieldByName('vlrPedido').AsFloat := FValorTotal;
+dm.FDQPedido.FieldByName('statusPedido').AsString := 'A';
+dm.FDQPedido.Post;
+
+dm.FDQitemPedido.Append;
+dm.FDQitemPedido.FieldByName('idPedido').AsInteger := dm.FDQPedido.FieldByName('id').AsInteger;
+dm.FDQitemPedido.FieldByName('idProduto').AsInteger := dm.FDQProduto.FieldByName('id').AsInteger;
+dm.FDQitemPedido.FieldByName('qteProduto').AsInteger :=
+dm.FDQitemPedido.FieldByName('qtePeoduto').AsInteger + 1;
+dm.FDQitemPedido.FieldByName('vlrItem').AsFloat := dm.FDQProdutovalor.AsFloat;
+dm.FDQitemPedido.Post;
+
+end;
+
+procedure TFrmLista.RectSalvarClick(Sender: TObject);
+var
+  nome : string;
+  cpf : string;
+  celular : string;
+  cep : string;
+  endereco : string;
+  cidade : string;
+  uf : string;
+  bairro : string;
+begin
+
+
+end;
+
+procedure TFrmLista.RemoverItem(Sender: TObject);
+begin
+
+end;
+
+
+procedure TFrmLista.CarregarListaProdutos(id: integer; nome, descricao: string;
+  valor: double);
+var
+  rect, rect_barra: TRectangle;
+  rect_icone: TCircle;
+  lbl: TLabel;
+  img: TImage;
+  i, valorEstrela: integer;
+  btn: TButton;
+begin
+
+  // fundo
+  rect := TRectangle.Create(VertScrollBoxMinhaLista);
+  with rect do
+  begin
+    Align := TAlignLayout.Top;
+    Height := 110;
+    Fill.Color := $FFFFFFFF;
+    Stroke.Kind := TBrushKind.Solid;
+    Stroke.Color := $FFD4D5D7;
+    Margins.Top := 10;
+    Margins.Left := 10;
+    Margins.Right := 10;
+    XRadius := 8;
+    YRadius := 8;
+    TagString := IntToStr(id);
+  end;
+  // Barra inferior...
+  rect_barra := TRectangle.Create(rect);
+  with rect_barra do
+  begin
+    Align := TAlignLayout.Bottom;
+    Height := 45;
+    Fill.Color := $FFF4F4F4;
+    Stroke.Kind := TBrushKind.Solid;
+    Stroke.Color := $FFD4D5D7;
+    Sides := [TSide.Left, TSide.Bottom, TSide.Right];
+    XRadius := 8;
+    YRadius := 8;
+    Corners := [TCorner.BottomLeft, TCorner.BottomRight];
+    HitTest := False;
+    rect.AddObject(rect_barra);
+  end;
+
+  lbl := TLabel.Create(rect);
+  with lbl do
+  begin
+    StyledSettings := StyledSettings - [TStyledSetting.Size,
+      TStyledSetting.FontColor, TStyledSetting.Style];
+    TextSettings.FontColor := $FF333333;
+    Text := nome;
+    font.Size := 16;
+    font.Style := [TFontStyle.fsBold];
+    Position.x := 50;
+    Position.Y := 10;
+    Width := 200;
+    rect.AddObject(lbl);
+  end;
+  lbl := TLabel.Create(rect_barra);
+  with lbl do
+  begin
+    StyledSettings := StyledSettings - [TStyledSetting.Size,
+      TStyledSetting.FontColor, TStyledSetting.Style];
+    TextSettings.FontColor := $FFDF0B0B;
+    Text := descricao;
+    font.Size := 11;
+    font.Style := [TFontStyle.fsBold];
+    Position.x := 5;
+    Position.Y := 70;
+    Width := 500;
+    rect.AddObject(lbl);
+  end;
+
+  btn := TButton.Create(rect_barra);
+  with btn do
+  begin
+    nome := 'btnAdd' + IntToStr(id);
+    StyleLookup := 'additembutton';
+    Position.x := 180;
+    Position.Y := 85;
+    Height := 25;
+    Width := 25;
+    TagString := IntToStr(id);
+    OnClick := AddItem;
+    rect.AddObject(btn);
+  end;
+
+  lbl :=TLabel.Create(rect_barra);
+  with lbl do
+  begin
+    StyledSettings := StyledSettings - [TStyledSetting.Size,
+      TStyledSetting.FontColor, TStyledSetting.Style];
+    TextSettings.FontColor := $FFDF0B0B;
+    font.Size := 16;
+    font.Style := [TFontStyle.fsBold];
+    Position.x := 230;
+    Position.Y := 85;
+    Width := 30;
+    Text := '0';
+    nome := 'labelAdd' + IntToStr(id);
+    rect.AddObject(lbl);
+  end;
+
+  btn := TButton.Create(rect_barra);
+  with btn do
+  begin
+    nome := 'btnRemover' + IntToStr(id);
+    StyleLookup := 'deleteitembutton';
+    Position.x := 270;
+    Position.Y := 85;
+    Height := 25;
+    Width := 25;
+    TagString := IntToStr(id);
+    OnClick := RemoverItem;
+    rect.AddObject(btn);
+  end;
+
+  lbl := TLabel.Create(rect);
+  with lbl do
+  begin
+    StyledSettings := StyledSettings - [TStyledSetting.Size,
+      TStyledSetting.FontColor, TStyledSetting.Style];
+    TextSettings.FontColor := $FFDF0B0B;
+    Text := 'R$' +FloatToStr(valor);
+    font.Size := 20;
+    font.Style := [TFontStyle.fsBold];
+    Position.x := 270;
+    Position.Y := 10;
+    Width := 500;
+    rect.AddObject(lbl);
+  end;
+
+  // ImgFavoritos
+  img := TImage.Create(rect);
+  if not favorito(id) then
+  begin
+    with img do
+    begin
+{$IFDEF MSWINDOWS}
+      Bitmap.LoadFromFile
+        (IOUtils.TPath.Combine('D:\Users\gdeveque\Downloads\aula0109\Aula2\img',
+        'heart_nosel.png'));
+{$ENDIF}
+{$IF DEFINED(iOS) or DEFINED(ANDROID)}
+      Bitmap.LoadFromFile
+        (IOUtils.TPath.Combine(System.IOUtils.TPath.GetDocumentsPath,
+        'heart_nosel.png'));
+{$ENDIF}
+      Height := 30;
+      Width := 30;
+      Position.x := 210;
+      Position.Y := 5;
+      name := 'imgheartNoSel' + IntToStr(id);
+      TagString := IntToStr(id);
+      OnClick := AddFavoritos;
+      Visible := true;
+      rect.AddObject(img);
+    end;
+  end
+  else
+  begin
+
+    with img do
+    begin
+{$IFDEF MSWINDOWS}
+      Bitmap.LoadFromFile
+        (IOUtils.TPath.Combine('D:\Users\gdeveque\Downloads\aula0109\Aula2\img',
+        'heart_yessel.png'));
+{$ENDIF}
+{$IF DEFINED(iOS) or DEFINED(ANDROID)}
+      Bitmap.LoadFromFile
+        (IOUtils.TPath.Combine(System.IOUtils.TPath.GetDocumentsPath,
+        'heart_yessel.png'));
+{$ENDIF}
+      Height := 30;
+      Width := 30;
+      Position.x := 210;
+      Position.Y := 5;
+      name := 'imgheartYesSel' + IntToStr(id);
+      TagString := IntToStr(id);
+      Visible := true;
+      rect.AddObject(img);
+    end;
+  end;
+  VertScrollBoxMinhaLista.AddObject(rect);
+end;
+
+function TFrmLista.favorito(id: integer): boolean;
+begin
+  dm.FDQFavoritos.Close;
+  dm.FDQFavoritos.ParamByName('pIdProduto').AsInteger := id;
+  dm.FDQFavoritos.Open();
+
+  if not dm.FDQFavoritos.IsEmpty then
+    Result := true
+  else
+    Result := False;
+end;
+
+procedure TFrmLista.FormCreate(Sender: TObject);
+begin
+  ChangeTabAction1.Execute;
+  GetProdutosBase;
+  GetListaFavoritos;
+end;
+
+procedure TFrmLista.GetListaFavoritos;
+var
+  rect, rect_barra: TRectangle;
+  rect_icone: TCircle;
+  lbl: TLabel;
+  img: TImage;
+  i, valorEstrela: integer;
+begin
+  dm.FDQListaFavoritos.Close;
+  dm.FDQListaFavoritos.Open();
+
+  while not dm.FDQListaFavoritos.Eof do
+  begin
+
+    // fundo
+    rect := TRectangle.Create(VertScrollBoxMinhaLista);
+    with rect do
+    begin
+      Align := TAlignLayout.Top;
+      Height := 110;
+      Fill.Color := $FFFFFFFF;
+      Stroke.Kind := TBrushKind.Solid;
+      Stroke.Color := $FFD4D5D7;
+      Margins.Top := 10;
+      Margins.Left := 10;
+      Margins.Right := 10;
+      XRadius := 8;
+      YRadius := 8;
+      TagString := dm.FDQListaFavoritosid.AsString;
+    end;
+    // Barra inferior...
+    rect_barra := TRectangle.Create(rect);
+    with rect_barra do
+    begin
+      Align := TAlignLayout.Bottom;
+      Height := 45;
+      Fill.Color := $FFF4F4F4;
+      Stroke.Kind := TBrushKind.Solid;
+      Stroke.Color := $FFD4D5D7;
+      Sides := [TSide.Left, TSide.Bottom, TSide.Right];
+      XRadius := 8;
+      YRadius := 8;
+      Corners := [TCorner.BottomLeft, TCorner.BottomRight];
+      HitTest := False;
+      rect.AddObject(rect_barra);
+    end;
+
+    lbl := TLabel.Create(rect);
+    with lbl do
+    begin
+      StyledSettings := StyledSettings - [TStyledSetting.Size,
+        TStyledSetting.FontColor, TStyledSetting.Style];
+      TextSettings.FontColor := $FF333333;
+      Text := dm.FDQListaFavoritosnome.AsString;
+      font.Size := 16;
+      font.Style := [TFontStyle.fsBold];
+      Position.x := 50;
+      Position.Y := 10;
+      Width := 200;
+      rect.AddObject(lbl);
+    end;
+    lbl := TLabel.Create(rect_barra);
+    with lbl do
+    begin
+      StyledSettings := StyledSettings - [TStyledSetting.Size,
+        TStyledSetting.FontColor, TStyledSetting.Style];
+      TextSettings.FontColor := $FFDF0B0B;
+      Text := dm.FDQListaFavoritosdescricao.AsString;
+      font.Size := 11;
+      font.Style := [TFontStyle.fsBold];
+      Position.x := 5;
+      Position.Y := 70;
+      Width := 500;
+      rect.AddObject(lbl);
+    end;
+    VertScrollBoxFavoritos.AddObject(rect);
+    dm.FDQListaFavoritos.Next;
+
+  end;
+end;
+
+procedure TFrmLista.GetProdutosBase;
+begin
+  dm.FDQProduto.Close;
+  dm.FDQProduto.Open();
+  while not dm.FDQProduto.Eof do
+  begin
+    CarregarListaProdutos(dm.FDQProdutoid.AsInteger, dm.FDQProdutonome.AsString,
+      dm.FDQProdutodescricao.AsString, dm.FDQProdutovalor.AsFloat);
+    dm.FDQProduto.Next;
+  end;
+
+end;
+
+procedure TFrmLista.img_aba2Click(Sender: TObject);
+begin
+  ChangeTabAction2.Execute;
+end;
+
+end.
+
